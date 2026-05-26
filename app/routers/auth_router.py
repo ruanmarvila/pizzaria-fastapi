@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies import obter_usuario_logado
 from app.models import Usuario
-from app.schemas import CadastrarSchema, LoginSchema
+from app.schemas import CadastrarSchema, LoginSchema, EditarPerfilSchema
 from app.security import gerar_token
-from app.services import cadastrar, login, deletar
+from app.services import cadastrar, login, deletar, recuperar_conta, visualizar_perfil, editar_perfil, editar_senha
 
 
 auth_router = APIRouter(prefix="/usuarios", tags=["usuarios"])
@@ -58,8 +58,35 @@ async def refresh_token(usuario: Usuario = Depends(obter_usuario_logado)):
 @auth_router.post("/excluir")
 async def excluir_usuario(usuario_schema: LoginSchema, usuario: Usuario = Depends(obter_usuario_logado), 
                           session: AsyncSession = Depends(get_db)):
-    usuario = deletar(usuario_schema.email, usuario_schema.senha, usuario, session)
+    usuario = await deletar(usuario_schema.email, usuario_schema.senha, usuario, session)
     return {
         "mensagem": "usuario excluído com sucesso"
     }
+
+@auth_router.post("/recuperar")
+async def recuperar_usuario(usuario_schema: LoginSchema, session: AsyncSession = Depends(get_db)):
+    resultado = await recuperar_conta(usuario_schema.email, usuario_schema.senha, session)
+    return {
+        "mensagem": "conta recuperada com sucesso"
+    }
+
+@auth_router.get("/perfil")
+async def acessar_perfil(usuario: Usuario = Depends(obter_usuario_logado), session: AsyncSession = Depends(get_db)):
+    perfil = await visualizar_perfil(usuario, session)
+    return {
+        "perfil": perfil
+    }
+
+@auth_router.post("/perfil/editar")
+async def editar_perfil_usuario(perfil_schema: EditarPerfilSchema, usuario: Usuario = Depends(obter_usuario_logado), session: AsyncSession = Depends(get_db)):
+    perfil = await editar_perfil(perfil_schema.nome, perfil_schema.email, usuario, session)
+    return {
+        "perfil": perfil
+    }
+
+@auth_router.post("/perfil/editar/senha")
+async def mudar_senha(senha: str, nova_senha: str, usuario: Usuario = Depends(obter_usuario_logado), session: AsyncSession = Depends(get_db)):
+    resultado = await editar_senha(senha, nova_senha, usuario, session)
+    if resultado:
+        return {"mensagem": "senha modificada com sucesso!"}
     
