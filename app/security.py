@@ -44,4 +44,5 @@ def verificar_token(token: str = Depends(oauth2_schema)) -> int:
         raise TokenInvalidoError()
     except ExpiredSignatureError:
         raise TokenExpiradoError()
+    
     return usuario_id
