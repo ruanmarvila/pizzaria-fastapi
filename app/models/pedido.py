@@ -1,13 +1,45 @@
-from sqlalchemy import Column, String, Integer, Float, ForeignKey
+import enum
+
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+
+
+class StatusPedido(str, enum.Enum):
+    PENDENTE = "pendente"
+    EM_PREPARO = "em_preparo"
+    PRONTO = "pronto"
+
+    SAIU_PARA_ENTREGA = "saiu_para_entrega"
+    ENTREGUE = "entregue"
+
+    RECUSADO = "recusado"
+    CANCELADO = "cancelado"
+
+    @property
+    def proximo_status_validos(self):
+        MAPA ={
+            StatusPedido.PENDENTE: [StatusPedido.EM_PREPARO, StatusPedido.RECUSADO, StatusPedido.CANCELADO],
+            StatusPedido.EM_PREPARO: [StatusPedido.PRONTO, StatusPedido.CANCELADO],
+            StatusPedido.PRONTO: [StatusPedido.SAIU_PARA_ENTREGA, StatusPedido.CANCELADO],
+            StatusPedido.SAIU_PARA_ENTREGA: [StatusPedido.ENTREGUE, StatusPedido.CANCELADO],
+            StatusPedido.ENTREGUE: [],
+            StatusPedido.RECUSADO: [],
+            StatusPedido.CANCELADO: []
+        }
+
+        return MAPA.get(self, [])
+
+    def pode_atualizar_para(self, novo_status):
+        return novo_status in self.proximo_status_validos
+
 
 class Pedido(Base):
     __tablename__ = "pedidos"
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
-    status = Column("status", String, default="PENDENTE")
+    status = Column(Enum(StatusPedido), default=StatusPedido.PENDENTE)
     preco = Column("preco", Float)
     usuario_id = Column("usuario_id", ForeignKey("usuarios.id"))
     itens = relationship("PedidoItem", back_populates="pedido", cascade="all, delete-orphan")
