@@ -41,11 +41,9 @@ async def adicionar(pedido_id: int, pedido_item: PedidoItemSchema, usuario: Usua
 @order_router.post("/pedido/remover/{pedido_item_id}")
 async def remover(pedido_item_id: int, usuario: Usuario = Depends(obter_usuario_logado) ,session: AsyncSession = Depends(get_db)):
     pedido = await remover_pedido(pedido_item_id, usuario, session)
-    return {
-        "mensagem": "item removido com sucesso",
-        "quantidade": len(pedido.itens),
-        "pedido": pedido
-    }
+
+    if pedido:
+        return {"mensagem": "item removido com sucesso"}
 
 @order_router.get("/listar")
 async def listar(usuario: Usuario = Depends(obter_usuario_logado), 
