@@ -32,5 +32,17 @@ class LoginSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class EditarPerfilSchema(BaseModel):
+    nome: str = Field(..., min_length=1)
+    email: EmailStr
 
     
+    @field_validator('nome')
+    @classmethod
+    def checar_vazios(cls, valor: str) -> str:
+        if not valor.strip():
+            raise ValueError("O campo não pode ser vazio")
+        return valor.strip()
+
+    class Config:
+        from_attributes = True
