@@ -54,7 +54,8 @@ Uma API RESTful assíncrona para gerenciamento de uma pizzaria, construída com 
 ```
 
 4. **Configure as variáveis de ambiente:**
-   crie um .env na raiz
+
+    Crie um .env na raiz
 ```properties
    SECRET_KEY=sua_chave_secreta_aqui
    ALGORITHM=HS256
