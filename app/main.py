@@ -1,19 +1,23 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
-from app.exceptions import ModelError, TokenInvalidoError ,TokenExpiradoError, CredenciaisInvalidasError,AcessoNegadoError, PedidoNaoEncontradoError, UsuarioNaoEncontradoError, EmailJaCadastradoError
+from app.exceptions import ModelError, TokenInvalidoError ,TokenExpiradoError, CredenciaisInvalidasError,AcessoNegadoError, PedidoNaoEncontradoError, UsuarioNaoEncontradoError, EmailJaCadastradoError, AtualizarStatusPedidoError, UsuarioDesativadoError, ContaAtivaError, RecuperacaoContaExpiradoError
 from app.routers import admin_router, auth_router, order_router
 
 app = FastAPI()
 
 MAPA_ERROR_HTTP = {
+    AtualizarStatusPedidoError: status.HTTP_400_BAD_REQUEST,
     TokenInvalidoError: status.HTTP_401_UNAUTHORIZED,
     TokenExpiradoError: status.HTTP_401_UNAUTHORIZED,
     CredenciaisInvalidasError: status.HTTP_401_UNAUTHORIZED,
     AcessoNegadoError: status.HTTP_403_FORBIDDEN,
+    UsuarioDesativadoError: status.HTTP_403_FORBIDDEN,
     PedidoNaoEncontradoError: status.HTTP_404_NOT_FOUND,
     UsuarioNaoEncontradoError: status.HTTP_404_NOT_FOUND,
-    EmailJaCadastradoError: status.HTTP_409_CONFLICT
+    EmailJaCadastradoError: status.HTTP_409_CONFLICT,
+    ContaAtivaError: status.HTTP_409_CONFLICT,
+    RecuperacaoContaExpiradoError: status.HTTP_410_GONE
 }
 
 @app.exception_handler(ModelError)
