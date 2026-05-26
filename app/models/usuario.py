@@ -1,4 +1,4 @@
-from sqlalchemy import Column ,String, Integer, Boolean
+from sqlalchemy import Column ,String, Integer, Boolean, DateTime
 
 from app.database import Base
 
@@ -11,12 +11,11 @@ class Usuario(Base):
     senha = Column("senha", String, nullable=False)
     ativo = Column("ativo", Boolean, default=True)
     admin = Column("admin", Boolean, default=False)
+    deletado_em = Column("deletado_em", DateTime, nullable=True, default=None)
 
     def __init__(self, nome: str, email: str, senha: str, ativo=True, admin=False):
         self.nome = nome
         self.email = email
         self.senha = senha
         self.ativo = ativo
-        self.admin = admin
-
-        
+        self.admin = admin        
